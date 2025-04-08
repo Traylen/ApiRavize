@@ -29,6 +29,23 @@ app.get('/api/produits/:id', async (req, res) => {
     }
 });
 
+app.get('/api/produits/categorie/:categorie', async (req, res) => {
+    try {
+        const categorie = req.params.categorie;
+        const [produits] = await db.query(
+            'SELECT * FROM produits_boutique WHERE categorie = ?',
+            [categorie]
+        );
+
+        if (produits.length === 0) {
+            return res.status(404).json({ message: "Aucun produit trouvé dans cette catégorie." });
+        }
+
+        res.json(produits);
+    } catch (err) {
+        res.status(500).json({ erreur: err.message });
+    }
+});
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`API REST en écoute sur http://localhost:${PORT}`);
