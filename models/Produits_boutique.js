@@ -1,6 +1,6 @@
 const { DataTypes, Model } = require('sequelize')
 
-const produit = sequelize.define(
+global.produit = sequelize.define(
     'produit_boutique',
     {
         name: {

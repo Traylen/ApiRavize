@@ -56,7 +56,7 @@ app.use("/user", userRoute)
 app.post("/list/create", middleWare, async(req,res) => {
     try {
         if(req.user.userId == undefined || req.user.userId == null) throw Error('No user find');
-        await db.query("INSERT INTO list(user_id, name) value (?, ?)", [req.user.userId, req.body.name])   
+        await list.create({name: req.body.name, user_id: req.user.userId});
         res.status(200).json({message: "List created succesfuly"})
     } catch (error) {
         res.status(500).json({message: error.message})   
@@ -81,7 +81,9 @@ app.post("/list/create", middleWare, async(req,res) => {
  */
 app.delete("/list/delete/:id", middleWare, async(req,res) => {
     try {
-        await db.query("DELETE from list where user_id = ? and id = ?", [req.user.userId, req.params.id])
+        // await db.query("DELETE from list where user_id = ? and id = ?", [req.user.userId, req.params.id])
+        const count = await list.destroy({where: {user_id: req.user.userId, id: req.params.id}})
+        if(count == 0) return res.status(500).json({message: "Nothing was found"})
         res.status(200).json({message: "List deleted succefuly"})
     } catch (error) {
         res.status(500).json({message: error.message});
