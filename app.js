@@ -1,10 +1,68 @@
 const express = require('express');
 const cors = require('cors');
 const db = require('./db');
+const jwt = require('jsonwebtoken')
 
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+
+app.post("/user/register", async(req, res) => {
+    try {
+        const username = req.body.username;
+        const password = req.body.password;
+
+    await db.query("INSERT INTO user(name, hashed_password) value (?, ?)", [username, password])
+    } catch (err) {
+        res.status(500).json({ erreur: err.message})
+    }
+}) 
+
+app.get("/user/login", async(req, res) => {
+    try {
+        const username = req.query.username;
+        const password = req.query.password;
+
+        console.log(username)
+        console.log(password);
+
+        const [response] = await db.query("SELECT * from user where name = ? and hashed_password = ?", [username, password])
+
+        if(response.length <= 0) return res.status(401).json({error: "user not find"})
+ 
+        console.log(response[0].name)
+        
+        const token = jwt.sign({ userId: response[0].id, name: response[0].name }, 'your-secret-key', {expiresIn: '1800s'});
+
+        res.json({token})
+    } catch (err) {
+        res.status(500).json({ erreur: err.message})
+    }
+})
+
+function middleWare(req, res, next) {
+    const authHeader = req.headers['authorization']
+    const token = authHeader && authHeader.split(' ')[1]
+
+      if (token == null) return res.sendStatus(401)
+
+      jwt.verify(token, "your-secret-key", (err, user) => {
+        console.log(user)
+
+        if (err) return res.sendStatus(403)
+
+        req.user = user
+
+        next()
+    })
+}
+
+app.get("/user/profile", middleWare ,async(req, res) => {
+    // res.status(200).json({message: "e " + req.headers['authorization']})
+    res.status(200).json({message: `connecté`, user: req.user})
+    // res.status(200).json({message: jwt.verify(req.header("Authorization"), "your-secret-key")})
+})
 
 app.get('/api/produits', async (req, res) => {
     try {
