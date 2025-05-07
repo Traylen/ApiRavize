@@ -81,7 +81,6 @@ app.post("/list/create", middleWare, async(req,res) => {
  */
 app.delete("/list/delete/:id", middleWare, async(req,res) => {
     try {
-        // await db.query("DELETE from list where user_id = ? and id = ?", [req.user.userId, req.params.id])
         const count = await list.destroy({where: {user_id: req.user.userId, id: req.params.id}})
         if(count == 0) return res.status(500).json({message: "Nothing was found"})
         res.status(200).json({message: "List deleted succefuly"})
@@ -103,7 +102,7 @@ app.delete("/list/delete/:id", middleWare, async(req,res) => {
  */
 app.get('/api/produits', async (req, res) => {
     try {
-        const [produits] = await db.query('SELECT * FROM produits_boutique');
+        const produits = await produit.findAll({})
         res.json(produits);
     } catch (err) {
         res.status(500).json({ erreur: err.message });
@@ -128,13 +127,13 @@ app.get('/api/produits', async (req, res) => {
  */
 app.get('/api/produits/:id', async (req, res) => {
     try {
-        const [produit] = await db.query('SELECT * FROM produits_boutique WHERE id = ?', [req.params.id]);
+        const Cproduit = await produit.findAll({where: {id: req.params.id}})
 
-        if (produit.length === 0) {
+        if (Cproduit.length === 0) {
             return res.status(404).json({ erreur: "Produit non trouvé." });
         }
 
-        res.json(produit[0])
+        res.json(Cproduit[0])
     } catch (err) {
         res.status(500).json({ erreur: err.message });
     }
