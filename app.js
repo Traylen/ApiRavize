@@ -31,12 +31,36 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerJsdoc(options)))
 
+
+/**
+ * @swagger
+ * /user/register:
+ *   post:
+ *     description: adding a new user
+ *     tags:
+ *       - user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: user registered
+ */
 app.post("/user/register", async(req, res) => {
     try {
         const username = req.body.username;
         const password = req.body.password;
-
-    await db.query("INSERT INTO user(name, hashed_password) value (?, ?)", [username, password])
+        
+        await db.query("INSERT INTO user(name, hashed_password) value (?, ?)", [username, password])
+        res.status(200).json({ message: "User added succefuly"})
     } catch (err) {
         res.status(500).json({ erreur: err.message})
     }
@@ -46,6 +70,8 @@ app.post("/user/register", async(req, res) => {
  * @swagger
  * /user/login:
  *   post:
+ *     tags:
+ *       - user
  *     requestBody:
  *       required: true
  *       content:
@@ -105,6 +131,8 @@ function middleWare(req, res, next) {
  * @openapi
  * /user/profile:
  *   get:
+ *     tags:
+ *       - user
  *     security:
  *       - bearerAuth: []
  *     description: Welcome to swagger-jsdoc!
@@ -118,6 +146,17 @@ app.get("/user/profile", middleWare ,async(req, res) => {
     // res.status(200).json({message: jwt.verify(req.header("Authorization"), "your-secret-key")})
 })
 
+/**
+ * @swagger
+ * /api/produits:
+ *   get:
+ *     description: get all products in database
+ *     tags:
+ *       - products
+ *     responses:
+ *       200:
+ *         description: return products in database     
+ */
 app.get('/api/produits', async (req, res) => {
     try {
         const [produits] = await db.query('SELECT * FROM produits_boutique');
@@ -127,6 +166,22 @@ app.get('/api/produits', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /api/produits/{id}:
+ *   get:
+ *     description: Get a specific product from id
+ *     tags:
+ *       - products
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         type: integer
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: product is returned
+ */
 app.get('/api/produits/:id', async (req, res) => {
     try {
         const [produit] = await db.query('SELECT * FROM produits_boutique WHERE id = ?', [req.params.id]);
