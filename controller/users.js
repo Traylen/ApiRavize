@@ -32,7 +32,15 @@ router.post("/login", async(req, res) => {
         console.log(username)
         console.log(password);
 
-        const [response] = await db.query("SELECT * from user where name = ? and hashed_password = ?", [username, password])
+        // const [response] = await db.query("SELECT * from user where name = ? and hashed_password = ?", [username, password])
+        const response = await user.findAll({
+            where: {
+                name: username,
+                password: password 
+            }
+        })
+
+        console.log(response)
 
         if(response.length <= 0) return res.status(401).json({error: "user not find"})
  
@@ -73,7 +81,7 @@ router.post("/register", async(req, res) => {
         const username = req.body.username;
         const password = req.body.password;
         
-        await db.query("INSERT INTO user(name, hashed_password) value (?, ?)", [username, password])
+        await user.create({ name: username, password: password})
         res.status(200).json({ message: "User added succefuly"})
     } catch (err) {
         res.status(500).json({ erreur: err.message})

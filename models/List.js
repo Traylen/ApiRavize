@@ -1,6 +1,6 @@
 const { DataTypes, Model } = require('sequelize')
 
-const list = sequelize.define(
+global.list = sequelize.define(
     'list',
     {
         name: {

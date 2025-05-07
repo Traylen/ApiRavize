@@ -1,6 +1,6 @@
 const { DataTypes, Model } = require('sequelize')
 
-const user = sequelize.define(
+global.user = sequelize.define(
     'user',
     {
         name: {
