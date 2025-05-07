@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-const db = require('./db');
-const jwt = require('jsonwebtoken')
+global.db = require('./db');
+global. jwt = require('jsonwebtoken')
 const swaggerUi = require('swagger-ui-express')
 const swaggerJsdoc = require('swagger-jsdoc');
 global.app = express();
@@ -40,9 +40,52 @@ app.use("/user", userRoute)
  *     security:
  *       - bearerAuth: []
  *     description: creating a new list
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: List created 
  */
 app.post("/list/create", middleWare, async(req,res) => {
+    try {
+        if(req.user.userId == undefined || req.user.userId == null) throw Error('No user find');
+        await db.query("INSERT INTO list(user_id, name) value (?, ?)", [req.user.userId, req.body.name])   
+        res.status(200).json({message: "List created succesfuly"})
+    } catch (error) {
+        res.status(500).json({message: error.message})   
+    }
+})
 
+/**
+ * @swagger
+ * /list/delete/{id}:
+ *   delete:
+ *     security:
+ *       - bearerAuth: []
+ *     description: delete a list
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         type: integer
+ *     responses:
+ *       200:
+ *         description: list deleted
+ */
+app.delete("/list/delete/:id", middleWare, async(req,res) => {
+    try {
+        await db.query("DELETE from list where user_id = ? and id = ?", [req.user.userId, req.params.id])
+        res.status(200).json({message: "List deleted succefuly"})
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
 })
 
 /**
