@@ -2,11 +2,34 @@ const express = require('express');
 const cors = require('cors');
 const db = require('./db');
 const jwt = require('jsonwebtoken')
+const swaggerUi = require('swagger-ui-express')
+const swaggerJsdoc = require('swagger-jsdoc');
+
+const options = {
+    definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'API Ravize',
+      version: '1.0.0',
+    },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        }
+      }
+    },
+  },
+  apis: ['./app.js'], // files containing annotations as above
+}
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerJsdoc(options)))
 
 app.post("/user/register", async(req, res) => {
     try {
@@ -19,10 +42,30 @@ app.post("/user/register", async(req, res) => {
     }
 }) 
 
-app.get("/user/login", async(req, res) => {
+/**
+ * @swagger
+ * /user/login:
+ *   post:
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     description: Welcome to swagger-jsdoc!
+ *     responses:
+ *       200:
+ *         description: Returns a mysterious string.
+ */
+app.post("/user/login", async(req, res) => {
     try {
-        const username = req.query.username;
-        const password = req.query.password;
+        const username = req.body.username;
+        const password = req.body.password;
 
         console.log(username)
         console.log(password);
@@ -58,6 +101,17 @@ function middleWare(req, res, next) {
     })
 }
 
+/**
+ * @openapi
+ * /user/profile:
+ *   get:
+ *     security:
+ *       - bearerAuth: []
+ *     description: Welcome to swagger-jsdoc!
+ *     responses:
+ *       200:
+ *         description: Returns a mysterious string.
+ */
 app.get("/user/profile", middleWare ,async(req, res) => {
     // res.status(200).json({message: "e " + req.headers['authorization']})
     res.status(200).json({message: `connecté`, user: req.user})
