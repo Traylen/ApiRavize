@@ -38,6 +38,3 @@ List.belongsToMany(User, {
 
 sharedList.belongsTo(User, { foreignKey: 'user_id', onDelete: 'CASCADE' });
 sharedList.belongsTo(List, { foreignKey: 'list_id', onDelete: 'CASCADE' });
-
-sharedList.sync();
-console.log('synced')

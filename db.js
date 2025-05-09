@@ -20,6 +20,10 @@ require('./models/Produits_boutique')
 require('./models/List')
 require('./models/SharedList')
 
+sequelize.sync({ alter: true })
+  .then(() => console.log('sync avec les clé étrangeres'))
+  .catch(console.error);
+
 // const mysql = require('mysql2');
 
 // const pool = mysql.createPool({

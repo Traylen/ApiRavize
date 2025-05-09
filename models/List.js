@@ -17,6 +17,4 @@ global.list = sequelize.define(
     }
 )
 
-list.sync();
-console.log('synced')
 module.exports = list
