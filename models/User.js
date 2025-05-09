@@ -19,3 +19,4 @@ global.user = sequelize.define(
 
 user.sync();
 console.log('synced')
+module.exports = user;

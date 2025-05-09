@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 
-global.shardedList = sequelize.define(
+global.sharedList = sequelize.define(
     'shared_list', {
   id: {
     type: DataTypes.INTEGER,
@@ -23,21 +23,21 @@ const User = require('./User');
 const List = require('./List');
 
 User.belongsToMany(List, {
-  through: SharedList,
+  through: sharedList,
   foreignKey: 'user_id',
   otherKey: 'list_id',
   as: 'sharedLists'
 });
 
 List.belongsToMany(User, {
-  through: SharedList,
+  through: sharedList,
   foreignKey: 'list_id',
   otherKey: 'user_id',
   as: 'sharedUsers'
 });
 
-SharedList.belongsTo(User, { foreignKey: 'user_id', onDelete: 'CASCADE' });
-SharedList.belongsTo(List, { foreignKey: 'list_id', onDelete: 'CASCADE' });
+sharedList.belongsTo(User, { foreignKey: 'user_id', onDelete: 'CASCADE' });
+sharedList.belongsTo(List, { foreignKey: 'list_id', onDelete: 'CASCADE' });
 
-shardedList.sync();
+sharedList.sync();
 console.log('synced')
