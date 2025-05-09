@@ -157,6 +157,62 @@ app.get('/api/produits/categorie/:categorie', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /list/share:
+ *   post:
+ *     security:
+ *       - bearerAuth: []
+ *     description: Partager une liste avec un autre utilisateur
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               list_id:
+ *                 type: integer
+ *               user_id:
+ *                 type: integer
+ *     responses:
+ *       201:
+ *         description: Liste partagée
+ */
+app.post("/list/share", async (req, res) => {
+    const { list_id, user_id } = req.body;
+
+    try {
+        const listToShare = await list.findOne({
+            where: { id: list_id, user_id: req.user.userId }
+        });
+
+        const shared = await sharedList.create({
+            list_id: list_id,
+            user_id: user_id,
+        });
+
+        res.status(201).json({ message: "Liste partagée avec succès.", shared });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+app.get("/list/shared", async (req, res) => {
+    try {
+        const lists = await sharedList.findAll({
+            where: { user_id: req.user.userId },
+            include: [list]
+        });
+
+        res.json(lists);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`API REST en écoute sur http://localhost:${PORT}`);
