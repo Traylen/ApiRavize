@@ -18,6 +18,7 @@ connect();
 require('./models/User')
 require('./models/Produits_boutique')
 require('./models/List')
+require('./models/SharedList')
 
 // const mysql = require('mysql2');
 
